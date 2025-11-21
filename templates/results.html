@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results | Product Price Comparison</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        function openProduct(url) {
+            window.open(url, '_blank');
+        }
+    </script>
+    <style>
+        /* Font family matches index.html defaults */
+        @font-face { font-family: 'Gilroy'; src: url('/static/fonts/Gilroy-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Gilroy'; src: url('/static/fonts/Gilroy-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Gilroy'; src: url('/static/fonts/Gilroy-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+
+        /* Palette aligned with index.html */
+        :root {
+            --bg: #ffffff;
+            --bg-soft: #f6f7fb;
+            --ink: #0f172a;
+            --ink-2: #475569;
+            --text-primary: var(--ink);
+            --text-muted: #6b7280;
+            --accent: #3b5bfd;
+            --accent-2: #6c84ff;
+            --surface: #ffffff;
+            --surface-strong: #e7eaf0;
+            --border: #eef1f6;
+            --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --container: 1200px;
+        }
+        html, body { height: 100%; margin: 0; }
+        body {
+            min-height: 100vh;
+            background: var(--bg-soft);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Gilroy', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .corner-brand {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .corner-brand .brand-link{ display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 800; }
+        .corner-brand .brand-link span{ font-family: 'Gilroy','Manrope',sans-serif; font-weight: 800; letter-spacing: -0.3px; font-size: 1.35rem; line-height: 1; color: var(--ink); }
+        .corner-brand .brand-link img{ height: 32px; }
+        .main-content { flex: 1; width: 100%; max-width: var(--container); margin: 0 auto; padding: 2.5rem 1rem; }
+        .search-query-display { text-align: center; margin-bottom: 2.5rem; font-size: 1.05rem; color: var(--ink-2); }
+        .platform-container {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+        }
+        .platform-section { flex: 1 1 50%; max-width: 600px; }
+        .platform-header { display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; padding: 1rem; background: var(--surface); color: var(--ink); border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--surface-strong); }
+        .platform-logo {
+            height: 60px;
+            object-fit: contain;
+            max-width: 120px;
+        }
+        .platform-logo1 {
+            height: 60px;
+            object-fit: contain;
+            max-width: 120px;
+        }
+        .product-card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--surface-strong); margin-bottom: 1.25rem; padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(15,23,42,0.12);
+            border-color: transparent;
+        }
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f7f7f7;
+            margin-bottom: 1rem;
+        }
+        .product-info {
+            text-align: center;
+        }
+        .product-info h3 { font-size: 1.06rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--ink); line-height: 1.5; letter-spacing: -0.1px; }
+        .product-info .price { color: var(--accent); font-size: 1.18rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .product-info p { color: var(--ink-2); font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .product-info a { display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; font-size: 0.98rem; font-weight: 700; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; box-shadow: 0 10px 24px rgba(71,101,255,0.35); }
+        .product-info a:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(71,101,255,0.45); opacity: 0.95; }
+        .footer { background: var(--ink); color: #e2e8f0; padding: 2rem 0; text-align: center; width: 100%; box-shadow: 0 -4px 24px rgba(0,0,0,0.08); margin-top: auto; position: relative; bottom: 0; left: 0; right: 0; }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .footer p { margin: 0; font-size: 1rem; color: #cbd5e1; }
+        @media (max-width: 1100px) {
+            .platform-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .platform-section {
+                width: 100%;
+            }
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .product-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="corner-brand">
+        <a class="brand-link" href="/">
+          
+            <img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png" alt="Choose Wise Logo">
+            <span>Choose Wise</span>
+        </a>
+        
+    </div>
+
+    <div class="main-content">
+        <div class="search-query-display">
+            Showing results for: <strong>{{ query }}</strong>
+        </div>
+
+        <div class="platform-container">
+            <div class="platform-section">
+                <div class="platform-header">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon Logo" class="platform-logo1">
+                </div>
+                {% for product in amazon_products %}
+                    {% set image_src = product.image if product.image else url_for('static', filename='amazon-vs-flipkart.png') %}
+                    <div class="product-card">
+                        <img src="{{ image_src }}" alt="Product Image">
+                        <div class="product-info">
+                            <h3>{{ product.title }}</h3>
+                            <p class="price">₹{{ product.price }}</p>
+                            <p>Rating: {{ product.rating if product.rating else 'N/A' }}</p>
+                            <a href="#" onclick="openProduct('{{ product.link }}')">View on Amazon</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="platform-section">
+                <div class="platform-header">
+                    <img src="https://1000logos.net/wp-content/uploads/2021/02/Flipkart-logo.png" alt="Flipkart Logo" class="platform-logo">
+                </div>
+                {% for product in flipkart_products %}
+                    {% set image_src = product.image if product.image else url_for('static', filename='amazon-vs-flipkart.png') %}
+                    <div class="product-card">
+                        <img src="{{ image_src }}" alt="Product Image">
+                        <div class="product-info">
+                            <h3>{{ product.title }}</h3>
+                            <p class="price">₹{{ product.price }}</p>
+                            <p>Rating: {{ product.rating if product.rating else 'N/A' }}</p>
+                            <a href="#" onclick="openProduct('{{ product.link }}')">View on Flipkart</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Choose Wise. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 

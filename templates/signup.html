@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Modern SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#f0f0e1',
+                        'bg-soft': '#f6f7fb',
+                        ink: '#0f172a',
+                        'ink-2': '#475569',
+                        'text-primary': '#0f172a',
+                        'text-muted': '#6b7280',
+                        accent: '#3b5bfd',
+                        'accent-2': '#6c84ff',
+                        surface: '#ffffff',
+                        'surface-strong': '#e7eaf0',
+                        border: '#eef1f6',
+                    },
+                    borderRadius: {
+                        'pill': '999px',
+                        'lg': '16px',
+                    },
+                    boxShadow: {
+                        'custom': '0 8px 24px rgba(15, 23, 42, 0.06)',
+                        'glow': '0 0 0 4px rgba(59, 91, 253, 0.2)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'slide-up': 'slideUp 0.8s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Variables Fallback */
+        :root {
+            --bg: #f0f0e1;
+            --bg-soft: #f6f7fb;
+            --ink: #0f172a;
+            --ink-2: #475569;
+            --text-primary: var(--ink);
+            --text-muted: #6b7280;
+            --accent: #3b5bfd;
+            --accent-2: #6c84ff;
+            --surface: #ffffff;
+            --surface-strong: #e7eaf0;
+            --border: #eef1f6;
+            --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --radius-pill: 999px;
+            --radius-lg: 16px;
+            --container: 1200px;
+        }
+        
+        body {
+            background-color: var(--bg);
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--ink-2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-6 opacity-0 animate-fade-in">
+
+    <div class="w-full max-w-[1200px] h-[85vh] min-h-[600px] bg-surface rounded-lg shadow-custom overflow-hidden flex flex-col md:flex-row">
+        
+        <!-- Left Side - Hero Section -->
+        <div class="relative hidden md:flex w-1/2 flex-col justify-center p-12 overflow-hidden bg-gradient-to-br from-accent to-accent-2 text-white">
+            <!-- Floating Shapes -->
+            <div class="absolute top-[-10%] left-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl animate-float"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float-delayed"></div>
+            
+            <div class="relative z-10 animate-slide-up">
+                <div class="mb-8">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-4xl font-bold mb-4 leading-tight">Start your journey with us today.</h1>
+                    <p class="text-white/80 text-lg max-w-md">
+                        Join thousands of designers and developers building the future of web technology.
+                    </p>
+                </div>
+                
+                <!-- Illustration Placeholder -->
+                <div class="relative w-full aspect-square max-w-md mx-auto mt-8 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-4 shadow-2xl transform rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
+                    <div class="h-full w-full bg-surface rounded-xl overflow-hidden relative">
+                        <!-- Abstract UI Representation -->
+                        <div class="absolute top-0 left-0 right-0 h-12 bg-surface-strong border-b border-border flex items-center px-4 gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        </div>
+                        <div class="mt-16 px-6 space-y-4">
+                            <div class="h-8 w-3/4 bg-surface-strong rounded-md"></div>
+                            <div class="h-4 w-full bg-surface-strong rounded-md"></div>
+                            <div class="h-4 w-5/6 bg-surface-strong rounded-md"></div>
+                            <div class="flex gap-4 mt-8">
+                                <div class="h-24 w-1/2 bg-accent/10 rounded-lg border border-accent/20"></div>
+                                <div class="h-24 w-1/2 bg-surface-strong rounded-lg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Signup Form -->
+        <div class="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-12 bg-surface relative">
+            <div class="max-w-md mx-auto w-full animate-slide-up" style="animation-delay: 0.2s;">
+                
+                <div class="mb-8 text-center md:text-left">
+                    <div class="md:hidden w-10 h-10 bg-accent rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-ink mb-2">Create Account</h2>
+                    <p class="text-text-muted">Enter your details to get started.</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="mb-4">
+                            {% for category, message in messages %}
+                                <div class="p-3 rounded-lg text-sm {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif category == 'success' %}bg-green-50 text-green-700 border border-green-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form id="signupForm" class="space-y-5" method="POST" action="{{ url_for('signup') }}">
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-ink-2">Username</label>
+                        <div class="relative">
+                            <input type="text" id="fullName" name="username" class="w-full px-4 py-3 rounded-lg bg-bg-soft border border-transparent focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none transition-all duration-300" placeholder="johndoe" required>
+                            <div id="nameCheck" class="hidden absolute right-3 top-3.5 text-green-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </div>
+                        <p id="nameError" class="text-xs text-red-500 mt-1 hidden">Username is required</p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-ink-2">Email Address</label>
+                        <div class="relative">
+                            <input type="email" id="email" name="email" class="w-full px-4 py-3 rounded-lg bg-bg-soft border border-transparent focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none transition-all duration-300" placeholder="john@example.com" required>
+                        </div>
+                        <p id="emailError" class="text-xs text-red-500 mt-1 hidden">Please enter a valid email</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-ink-2">Password</label>
+                            <div class="relative">
+                                <input type="password" id="password" name="password" class="w-full px-4 py-3 rounded-lg bg-bg-soft border border-transparent focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none transition-all duration-300" placeholder="••••••••" required>
+                                <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-3.5 text-text-muted hover:text-ink transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                            </div>
+                            <p id="passwordError" class="text-xs text-red-500 mt-1 hidden">Min 8 characters</p>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-ink-2">Confirm Password</label>
+                            <div class="relative">
+                                <input type="password" id="confirmPassword" name="confirm_password" class="w-full px-4 py-3 rounded-lg bg-bg-soft border border-transparent focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none transition-all duration-300" placeholder="••••••••" required>
+                                <button type="button" onclick="togglePassword('confirmPassword')" class="absolute right-3 top-3.5 text-text-muted hover:text-ink transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                            </div>
+                            <p id="confirmError" class="text-xs text-red-500 mt-1 hidden">Passwords do not match</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 pt-2">
+                        <input type="checkbox" id="agreeTerms" class="w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent">
+                        <label for="agreeTerms" class="text-sm text-text-muted">
+                            I agree to the <a href="#" class="text-accent hover:underline">Terms & Conditions</a>
+                        </label>
+                    </div>
+                    <p id="termsError" class="text-xs text-red-500 mt-1 hidden">You must agree to the terms</p>
+
+                    <button type="submit" class="w-full py-4 bg-accent hover:bg-accent-2 text-white font-semibold rounded-lg shadow-lg shadow-accent/30 hover:shadow-accent/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 group">
+                        Create Account
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <p class="text-text-muted">
+                        Already have an account? 
+                     <a href="{{ url_for('loginvercel') }}" class="text-accent font-medium hover:underline">Log in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Password Visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        // Form Validation
+        const form = document.getElementById('signupForm');
+        const fullName = document.getElementById('fullName');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const agreeTerms = document.getElementById('agreeTerms');
+
+        // Real-time validation for name
+        fullName.addEventListener('input', () => {
+            if (fullName.value.trim().length > 0) {
+                document.getElementById('nameCheck').classList.remove('hidden');
+                document.getElementById('nameError').classList.add('hidden');
+            } else {
+                document.getElementById('nameCheck').classList.add('hidden');
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let isValid = true;
+
+            // Reset errors
+            document.querySelectorAll('p[id$="Error"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input').forEach(el => el.classList.remove('border-red-500', 'focus:ring-red-200'));
+
+            // Validate Name
+            if (!fullName.value.trim()) {
+                document.getElementById('nameError').classList.remove('hidden');
+                fullName.classList.add('border-red-500', 'focus:ring-red-200');
+                isValid = false;
+            }
+
+            // Validate Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+                document.getElementById('emailError').classList.remove('hidden');
+                email.classList.add('border-red-500', 'focus:ring-red-200');
+                isValid = false;
+            }
+
+            // Validate Password
+            if (password.value.length < 8) {
+                document.getElementById('passwordError').classList.remove('hidden');
+                password.classList.add('border-red-500', 'focus:ring-red-200');
+                isValid = false;
+            }
+
+            // Validate Confirm Password
+            if (password.value !== confirmPassword.value) {
+                document.getElementById('confirmError').classList.remove('hidden');
+                confirmPassword.classList.add('border-red-500', 'focus:ring-red-200');
+                isValid = false;
+            }
+
+            // Validate Terms
+            if (!agreeTerms.checked) {
+                document.getElementById('termsError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Form will submit to Flask backend
+                form.submit();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChooseWise – Compare & Save</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    /* Gilroy font (optional): place files at assets/fonts/ to enable */
+    @font-face { font-family: 'Gilroy'; src: local('Gilroy Light'), url('assets/fonts/Gilroy-Light.woff2') format('woff2'), url('assets/fonts/Gilroy-Light.woff') format('woff'); font-weight: 300; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Gilroy'; src: local('Gilroy Regular'), url('assets/fonts/Gilroy-Regular.woff2') format('woff2'), url('assets/fonts/Gilroy-Regular.woff') format('woff'); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Gilroy'; src: local('Gilroy Semibold'), url('assets/fonts/Gilroy-Semibold.woff2') format('woff2'), url('assets/fonts/Gilroy-Semibold.woff') format('woff'); font-weight: 600; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Gilroy'; src: local('Gilroy Bold'), url('assets/fonts/Gilroy-Bold.woff2') format('woff2'), url('assets/fonts/Gilroy-Bold.woff') format('woff'); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Gilroy'; src: local('Gilroy ExtraBold'), url('assets/fonts/Gilroy-ExtraBold.woff2') format('woff2'), url('assets/fonts/Gilroy-ExtraBold.woff') format('woff'); font-weight: 800; font-style: normal; font-display: swap; }
+
+    :root {
+      --bg: #f0f0e1;
+      --bg-soft: #f6f7fb;
+      --ink: #0f172a;
+      --ink-2: #475569;
+      --text-primary: var(--ink);
+      --text-muted: #6b7280;
+      --accent: #3b5bfd;
+      --accent-2: #6c84ff;
+      --surface: #ffffff;
+      --surface-strong: #e7eaf0;
+      --border: #eef1f6;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius-pill: 999px;
+      --radius-lg: 16px;
+      --container: 1200px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Gilroy', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-soft);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px; width: 100%; }
+
+    /* Navbar */
+    nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 10; backdrop-filter: blur(16px); }
+    .nav-shell { border-bottom: 1px solid var(--border); background: var(--surface); box-shadow: 0 2px 12px rgba(15,23,42,0.04); }
+    .nav-inner { display: grid; grid-template-columns: auto 1fr; align-items: center; padding: 14px 0; column-gap: 20px; }
+
+    .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 700; color: var(--ink); letter-spacing: 0.2px; justify-self: start; }
+    .logo img { height: 60px;  object-fit: contain; display: block; }
+
+    nav ul { list-style: none; display: flex; gap: 24px; justify-content: center; }
+    nav ul li { position: relative; }
+    nav a { color: var(--ink-2); text-decoration: none; font-weight: 500; font-size: 0.98rem; transition: color 0.25s ease; padding: 8px 0; display: inline-flex; align-items: center; gap: 6px; }
+    nav a:hover { color: var(--ink); }
+    
+
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-right { display: flex; align-items: center; gap: 50px; justify-self: end; }
+    .btn { border: 1px solid transparent; border-radius: var(--radius-pill); padding: 10px 18px; font-weight: 600; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease; display: inline-flex; align-items: center; gap: 8px; font-size: 0.96rem; }
+    .btn-ghost { background: transparent; color: var(--ink); border-color: #d8dee8; }
+    .btn-ghost:hover { background: #eff3f9; transform: translateY(-1px); }
+    .btn-primary { background: #0f172a; color: #fff; border: none; box-shadow: 0 6px 14px rgba(15,23,42,0.18); width: 80px;}
+    .btn-primary:hover { transform: translateY(-1px); background: #111b31; box-shadow: 0 10px 22px rgba(15,23,42,0.22); }
+
+    /* Navbar search */
+    .nav-search { display: block; width: 100%; max-width: 520px; justify-self: end; }
+    .nav-search form { display: flex; align-items: center; background: var(--bg-soft); border: 1px solid var(--surface-strong); border-radius: 999px; padding: 10px 10px 10px 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.65); }
+    .nav-search input { flex: 1; background: transparent; border: none; outline: none; color: var(--ink); font-size: 1rem; }
+    .nav-search button { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: 0 6px 16px rgba(71,101,255,0.25); }
+    .nav-search svg { width: 18px; height: 18px; }
+    /* Animated moving text inside nav search */
+    .nav-search .field { position: relative; flex: 1; overflow: hidden; height: 38px; display: flex; align-items: center; }
+    .nav-search .moving-hint { position: absolute; left: 0; right: 0; top: 50%; transform: translate(100%, -50%); color: var(--text-muted); white-space: nowrap; pointer-events: none; animation: marqueeLR 10s linear infinite; transition: opacity .2s ease; padding-left: 2px; }
+    .nav-search .field.has-value .moving-hint, .nav-search .field:focus-within .moving-hint { opacity: 0; }
+    @keyframes marqueeLR { 0% { transform: translate(100%, -50%);} 100% { transform: translate(-100%, -50%);} }
+
+    /* Hero Section */
+    .hero { display: flex; justify-content: space-between; align-items: center; min-height: 100vh; padding: 150px 24px 80px; position: relative; background: linear-gradient(180deg, #eeeeee 0%, var(--bg-soft) 100%); }
+    .bg-word { position: absolute; left: 24px; top: 120px; font-size: clamp(64px, 14vw, 200px); font-weight: 800; letter-spacing: -2px; color: #0f172a; opacity: 100 ; pointer-events: none; user-select: none; line-height: 0.9; white-space: nowrap; will-change: transform, opacity; animation: fadeUpSoft 1.5s ease-out 0.5s both; }
+
+    .hero-text { max-width: 640px; }
+    .hero-text h1 { font-size: clamp(48px, 8vw, 88px); line-height: 1.05; font-weight: 800; }
+    .hero-title { will-change: transform, opacity; animation: fadeUp 1.5s ease-out 0.5s both; }
+    .title-sub { display: inline-block; font-weight: 50; color: var(--ink-2); }
+    .title-strong { display: inline-block; color: var(--ink); }
+
+    .hero-text p { margin-top: 16px; font-size: 1.1rem; color: var(--text-muted); }
+
+    .hero-visual { position: relative; width: min(420px, 100%); aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; transform: translateY(100px) translateX(-200px); }
+    .hero-floating { width: 100%; height: 100%; animation: float 2.0s ease-in-out infinite; display: flex; align-items: center; justify-content: center; }
+    .hero-floating img { width: 100%; height: 100%; object-fit: contain; display: block; filter: drop-shadow(0 25px 45px rgba(15, 23, 42, 0.22)); }
+
+    /* Compare Card */
+     
+        .search-box {
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 10px 20px;
+      width: 100%;
+      max-width: 500px;
+      background: var(--bg-soft);
+       border: 1px solid var(--surface-strong); 
+       border-radius: 999px; 
+       padding: 10px 10px 10px 16px; 
+       box-shadow: inset 0 1px 0 rgba(255,255,255,0.65); 
+    }
+    
+
+        .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--ink);
+      caret-color: var(--ink);
+      font-size: 1rem;
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+
+     .search-box button {
+      background: linear-gradient(90deg, #3f5ef9, #c0c0c0);
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: glowPulse 2.2s ease-in-out infinite;
+    }
+    .search-box button:hover {
+      box-shadow: 0 0 18px 6px rgba(71,101,255,0.5);
+      transform: scale(1.05);
+    }
+
+    
+    @keyframes float { 0%,100%{ transform: translateY(0)} 50%{ transform: translateY(-10px)} }
+    @keyframes glowPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(71,101,255,0.0); transform: scale(1); }
+      50%  { box-shadow: 0 0 20px 8px rgba(71,101,255,0.45); transform: scale(1.02); }
+      100% { box-shadow: 0 0 0 0 rgba(71,101,255,0.0); transform: scale(1); }
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUpSoft { from { opacity: 0; transform: translateY(18px); } to { opacity: 0.04; transform: translateY(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-title, .bg-word, .search-box button { animation: none !important; }
+      .section.alt h2,
+      .section.alt p.lead,
+      .section.alt .feature-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+      .hero::before { transition: none !important; opacity: .25 !important; }
+    }
+
+    /* Generic Sections */
+    .section { padding: 96px 24px; background: var(--bg); }
+    .section.alt { background: linear-gradient(180deg, #fafbff 0%, var(--bg-soft) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .section .section-inner { max-width: var(--container); margin: 0 auto; text-align: center; }
+    .section h2 { font-family: 'Gilroy', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif; font-size: clamp(28px, 4vw, 40px); margin-bottom: 12px; letter-spacing: -0.2px; font-weight: 800; }
+    .section p.lead { color: var(--ink-2); margin: 0 auto 28px; max-width: 720px; }
+
+    /* Section .alt reveal animations */
+    .section.alt h2 { font-family: gilroy; color:var(--ink)}
+    .section.alt p.lead { opacity: 0; transform: translateY(12px); will-change: opacity, transform; }
+    .section.alt .feature-card { opacity: 0; transform: translateY(14px); will-change: opacity, transform; }
+
+    .section.alt.in-view h2 { animation: fadeUp .7s ease-out .0s forwards; }
+    .section.alt.in-view p.lead { animation: fadeUp .7s ease-out .1s forwards; }
+    .section.alt.in-view .feature-card { animation: fadeUp .7s ease-out forwards; }
+    .section.alt.in-view .features-grid .feature-card:nth-child(1) { animation-delay: 1s; }
+    .section.alt.in-view .features-grid .feature-card:nth-child(2) { animation-delay: 1.5s; }
+    .section.alt.in-view .features-grid .feature-card:nth-child(3) { animation-delay: 2s; }
+
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; margin-top: 12px; }
+    .feature-card { background: var(--surface); border: 1px solid var(--surface-strong); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; height: 100%; text-align: left; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(15,23,42,0.10); border-color: transparent; }
+    .feature-card h3 { margin-bottom: 8px; font-size: 1.12rem; font-weight: 700; letter-spacing: -0.1px; color: var(--ink); }
+    .feature-card p { color: var(--ink-2); font-size: 0.98rem; line-height: 1.6; }
+    .feature-card .feature-cta { margin-top: 12px; display: flex; justify-content: center; }
+    #features .feature-cta { display: flex; justify-content: center;  }
+    .btn-try { background: linear-gradient(90deg, #4765ff, #c0c0c0); border: none; border-radius: 50px; padding: 10px 20px; cursor: pointer; color: #fff; font-weight: 600; transition: transform 0.3s ease, box-shadow 0.3s ease; animation: glowPulse 2.2s ease-in-out infinite; }
+    .btn-try:hover { box-shadow: 0 0 18px 6px rgba(71,101,255,0.5); transform: scale(1.05); }
+
+    /* Supported Platforms */
+    .support { background: var(--bg); }
+    .support .section-inner { text-align: center; }
+    .support h2 { font-family: 'Gilroy', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif; color: var(--ink); font-weight: 50px;  }
+    .support .lead { color: var(--ink-2); }
+    .platforms-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; align-items: stretch; margin-top: 16px; }
+    .platform-card { background: var(--surface); border: 1px solid var(--surface-strong); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; gap: 16px; transition: transform 1s ease, box-shadow .2s ease, border-color .2s ease; position: relative; overflow: hidden; }
+    .platform-card::after { content: ''; position: absolute; inset: 0; border-radius: 16px; pointer-events: none; box-shadow: inset 0 0 0 0 rgba(71,101,255,0); transition: box-shadow .25s ease; }
+    .platform-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15,23,42,0.10), 0 0 28px rgba(71,101,255,0.20); border-color: transparent; }
+    .platform-card:hover::after { box-shadow: inset 0 0 0 2px rgba(71,101,255,0.55), inset 0 0 24px rgba(71,101,255,0.35); }
+    .platform-card img { height: 34px; width: auto; object-fit: contain; display: block; }
+    .platform-name { font-family: 'Gilroy', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif; font-weight: 700; color: var(--ink); letter-spacing: -0.1px; }
+
+    
+
+    /* Footer */
+    footer { background: var(--ink); color: #cbd5e1; padding: 48px 24px 28px; }
+    footer .inner { max-width: var(--container); margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; align-items: start; }
+    .footer-brand { display: flex; flex-direction: column; gap: 8px; }
+    .footer-brand .logo { color: #fff; font-weight: 800; font-size: 1.25rem; }
+    .footer-brand p { color: #93a3bb; max-width: 520px; }
+    .footer-links h4, .footer-social h4 { font-family: 'Gilroy', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif; color: #e2e8f0; margin-bottom: 10px; font-size: 1rem; }
+    .footer-links ul { list-style: none; display: grid; gap: 8px; }
+    .footer-links a { color: #cbd5e1; text-decoration: none; transition: color .2s ease; }
+    .footer-links a:hover { color: #ffffff; }
+    .footer-social .icons { display: flex; gap: 12px; }
+    .footer-social a { display: inline-flex; width: 36px; height: 36px; border-radius: 50%; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); color: #e2e8f0; text-decoration: none; transition: background .2s ease, transform .2s ease; }
+    .footer-social a:hover { background: rgba(255,255,255,0.14); transform: translateY(-2px); }
+    .footer-social a[aria-label="Insta"]:hover { background: #ff2a2a; }
+    .footer-social a[aria-label="Whatsapp"]:hover { background: #25d366; }
+    .footer-social a[aria-label="facebook"]:hover { background: #1877f2; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 28px; padding-top: 18px; display: flex; align-items: center; justify-content: space-between; color: #93a3bb; font-size: 0.95rem; }
+    .footer-bottom a { color: #cbd5e1; text-decoration: none; }
+    @media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr; } .footer-bottom { flex-direction: column; gap: 10px; } }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .nav-inner { grid-template-columns: 1fr auto; row-gap: 10px; }
+      .nav-links { gap: 16px; font-size: 0.95rem; }
+    }
+    @media (max-width: 1024px) {
+      .hero { flex-direction: column; text-align: center; padding-top: 120px; }
+      .bg-word { left: 50%; transform: translateX(-50%); top: 100px; }
+      .hero-visual { width: min(360px, 80%); margin-top: 40px; }
+      .compare-grid { grid-template-columns: 1fr; }
+      .submit-wrap { justify-content: stretch; }
+      .btn-compare { width: 100%; border-radius: 14px; height: 48px; }
+      .results-grid { grid-template-columns: 1fr; }
+      .features-grid, .steps { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 1025px) { .nav-search { display: block; } }
+  </style>
+</head>
+
+<body>
+  <nav class="nav-shell">
+    <div class="container nav-inner">
+      <div class="logo"><img src="/static/logo.png" alt="Choose Wise logo" />Choose Wise</div>
+      
+      <div class="nav-right">
+        <div class="nav-search">
+          <form action="#" role="search">
+            <div class="field">
+              <input type="search" placeholder="" aria-label="Search" />
+              <span class="moving-hint" aria-hidden="true">What are you looking for? </span>
+            </div>
+            <button type="submit" aria-label="Search">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+        <div class="nav-actions">
+          <a href="{{ url_for('loginvercel') }}">
+            <img src="/static/person.png" width="40">
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section id="hero" class="hero">
+    <div class="bg-word">ChooseWise</div>
+    
+    <div class="hero-text">
+      <h1 class="hero-title"><span class="title-sub"><br>Discover</span><br><span class="title-strong">Smarter Deals</span></h1>
+      <p>ChooseWise compares prices across Amazon and Flipkart so you always buy at the best price.</p>
+
+      <div class="compare-card">
+        
+
+       
+      <div class="search-box">
+        <input id="queryInput" type="text" placeholder="Search for your product..." />
+        <button id="compareNowBtn" type="button">Compare Now</button>
+      </div>
+
+       
+            <br><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-floating">
+        <img src="/static/headphones.png" alt="Floating headphones product mockup">
+      </div>
+    </div>
+
+   
+       
+  </section>
+
+  <section id="support" class="section support">
+    <div class="section-inner">
+      <h2>Supported Platforms</h2>
+      <p class="lead">We compare trusted marketplaces so you can buy with confidence.</p>
+      <div class="platforms-grid">
+        <div class="platform-card" aria-label="Amazon Platform">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon logo" />
+          
+        </div>
+        <div class="platform-card" aria-label="Flipkart Platform">
+          <img src = "/static/flipkart.png" style = " height: 100px; width: 100px;" alt="Flipkart logo" />
+          
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="section alt">
+    <div class="section-inner">
+      <h2>Why Choose Wise?</h2>
+      <p class="lead">One place to search products and instantly compare prices across Amazon and Flipkart.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>Best-Price Finder</h3>
+          <p>We surface the lowest price across Amazon and Flipkart, factoring in sellers and offers.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Smart Filters</h3>
+          <p>Narrow by store, category and budget to zero in on the right deal in seconds.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Seamless Checkout</h3>
+          <p>Jump directly to the product page on your chosen marketplace to complete the purchase.</p>
+        </div>
+      </div>
+    </div>
+    <br><br><br><br>
+       <div class="feature-cta">
+            <a href="#hero" class="btn-try" style="width: 200px; font-size: 30px; display: inline-flex; justify-content: center; align-items: center; text-decoration: none;">Try Us !</a>
+          </div>
+  </section>
+
+
+  <footer id="contact">
+    <div class="inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">Choose Wise</div>
+          <p>Compare prices across Amazon and Flipkart to find the best deal faster.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#support">Platforms</a></li>
+            <li><a href="#results">Results</a></li>
+          </ul>
+        </div>
+        <div class="footer-social">
+          <h4>Connect with us</h4>
+          <div class="icons">
+            <a href="#" aria-label="Insta">
+              <img src ="/static/insta.png" style="height: 30px;">
+            </a>
+            <a href="#" aria-label="facebook">
+              <img src = "/static/facebook.png" style="height: 30px;">
+            </a>
+            <a href="#" aria-label="Whatsapp">
+              <img src ="/static/whats.png" style="height: 30px;">
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; <span id="year"></span> ChooseWise. All rights reserved.</div>
+        
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      const input = document.querySelector('.nav-search input');
+      const field = input ? input.parentElement : null;
+      if (!input || !field) return;
+      const toggle = () => {
+        field.classList.toggle('has-value', input.value.trim().length > 0);
+      };
+      input.addEventListener('input', toggle);
+      input.addEventListener('change', toggle);
+      // Initialize on load
+      toggle();
+    })();
+  </script>
+  <script>
+    (function(){
+      const hero = document.querySelector('.hero');
+      if (!hero) return;
+      // Fade in background on load
+      requestAnimationFrame(() => hero.classList.add('bg-visible'));
+      // Fade out on scroll
+      const onScroll = () => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const startFade = 0;
+        const endFade = 400;
+        const y = window.scrollY - startFade;
+        const t = Math.min(Math.max(y / endFade, 0), 1);
+        const opacity = 0.25 * (1 - t); // fade to 0
+        hero.style.setProperty('--heroBgOpacity', String(opacity));
+        // Apply directly to pseudo via class toggle by setting inline style is not possible, so adjust class
+        hero.style.setProperty('opacity', '');
+        hero.classList.toggle('bg-visible', opacity > 0.01);
+        hero.style.setProperty('--bgOpacityNow', String(opacity));
+        hero.querySelector(':scope').style;
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+    })();
+  </script>
+  <script>
+    (function(){
+      const btn = document.getElementById('compareNowBtn');
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        const q = (document.getElementById('queryInput')?.value || '').trim();
+        const url = q ? `/products?q=${encodeURIComponent(q)}` : '/products';
+        window.location.href = url;
+      });
+    })();
+  </script>
+  <script>
+    (function() {
+      const featuresSection = document.querySelector('#features.section.alt');
+      if (!('IntersectionObserver' in window) || !featuresSection) return;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            featuresSection.classList.add('in-view');
+            io.unobserve(featuresSection);
+          }
+        });
+      }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.2 });
+      io.observe(featuresSection);
+    })();
+  </script>
+
+</body>
+</html>
