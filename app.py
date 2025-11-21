@@ -1,39 +1,42 @@
-import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import re
+from typing import Dict, Optional
+
+import pandas as pd
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
+from supabase import Client, create_client
+from werkzeug.security import generate_password_hash, check_password_hash
+
+load_dotenv()
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_ANON_KEY")
+
+if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+    raise RuntimeError(
+        "Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your .env file."
+    )
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:cherry2408@localhost:3306/user_auth'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change_this_secret")
 
-# Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'your_mail_server.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@example.com'
-app.config['MAIL_PASSWORD'] = 'your_email_password'
-app.config['MAIL_DEFAULT_SENDER'] = 'your_email@example.com'
+# Flask-Mail configuration (kept for future use; configure via env if needed)
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'your_mail_server.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = bool(int(os.environ.get('MAIL_USE_TLS', 1)))
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'your_email@example.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'your_email_password')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'your_email@example.com')
 
 mail = Mail(app)
 
-db = SQLAlchemy(app)
+PRODUCT_COLUMNS = ['platform', 'link', 'title', 'price', 'image', 'rating']
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
 
-# ✅ Read CSV files instead
-amazon_df = pd.read_csv("merged_amazon.csv")
-flipkart_df = pd.read_csv("merged_flipkart.csv")
-
-# Modify these column names as per your CSV headers
 def normalize_amazon_image(url: str):
     if not isinstance(url, str):
         return None
@@ -47,36 +50,71 @@ def normalize_amazon_image(url: str):
     return url
 
 
-amazon_data = pd.DataFrame({
-    'platform': 'Amazon',
-    'link': amazon_df['single-href'],
-    'title': amazon_df['title'],
-    'price': amazon_df['price'],
-    'image': amazon_df['image-src'].apply(normalize_amazon_image),
-    'rating': amazon_df['rating'],
-})
+def load_products_dataframe() -> pd.DataFrame:
+    """
+    Fetch product catalog from Supabase and normalize it for search.
+    Expecting a `products` table with columns that map to PRODUCT_COLUMNS.
+    """
+    try:
+        response = supabase.table("products").select(",".join(PRODUCT_COLUMNS)).execute()
+    except Exception as exc:
+        app.logger.error("Failed to fetch products from Supabase: %s", exc)
+        return pd.DataFrame(columns=PRODUCT_COLUMNS + ['normalized_title'])
 
-flipkart_data = pd.DataFrame({
-    'platform': 'Flipkart',
-    'link': flipkart_df['single-href'],
-    'title': flipkart_df['title'],
-    'price': flipkart_df['price'],
-    'image': flipkart_df['image-src'],
-    'rating': flipkart_df['rating'],
-})
+    records = response.data or []
+    df = pd.DataFrame(records)
+    if df.empty:
+        return pd.DataFrame(columns=PRODUCT_COLUMNS + ['normalized_title'])
 
-all_products = pd.concat([amazon_data, flipkart_data], ignore_index=True)
-# Precompute a normalized title for resilient searching
-all_products['title'] = all_products['title'].fillna('')
-all_products['normalized_title'] = (
-    all_products['title']
-    .str.lower()
-    .str.replace(r"[^a-z0-9]+", "", regex=True)
-)
+    # Normalize columns to avoid KeyErrors
+    for column in PRODUCT_COLUMNS:
+        if column not in df.columns:
+            df[column] = None
 
-@app.before_request
-def create_tables():
-    db.create_all()
+    df['title'] = df['title'].fillna('')
+    df['normalized_title'] = (
+        df['title']
+        .str.lower()
+        .str.replace(r"[^a-z0-9]+", "", regex=True)
+    )
+
+    # Optional normalization specific to Amazon images
+    if 'image' in df.columns:
+        df.loc[df['platform'].str.lower() == 'amazon', 'image'] = (
+            df.loc[df['platform'].str.lower() == 'amazon', 'image']
+            .apply(normalize_amazon_image)
+        )
+
+    return df
+
+
+def get_user_by_username(username: str) -> Optional[Dict]:
+    response = supabase.table("users").select("*").eq("username", username).limit(1).execute()
+    data = response.data or []
+    return data[0] if data else None
+
+
+def get_user_by_email(email: str) -> Optional[Dict]:
+    response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
+    data = response.data or []
+    return data[0] if data else None
+
+
+def get_user_by_identifier(identifier: str) -> Optional[Dict]:
+    user = get_user_by_username(identifier)
+    if user:
+        return user
+    return get_user_by_email(identifier)
+
+
+def create_user(username: str, email: str, password_hash: str):
+    return supabase.table("users").insert(
+        {
+            "username": username,
+            "email": email,
+            "password_hash": password_hash,
+        }
+    ).execute()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -91,7 +129,12 @@ def products():
     amazon_results = []
     flipkart_results = []
 
-    if query:
+    products_df = load_products_dataframe()
+
+    if products_df.empty and query:
+        flash('No products available in Supabase. Please load product data.', 'error')
+
+    if query and not products_df.empty:
         q_lower = query.strip().lower()
         tokens = re.findall(r"[a-z0-9]+", q_lower)
         q_norm = re.sub(r"[^a-z0-9]+", "", q_lower)
@@ -100,31 +143,31 @@ def products():
         if tokens:
             mask_all = True
             for t in tokens:
-                mask_all = mask_all & all_products['title'].str.contains(re.escape(t), case=False, na=False)
+                mask_all = mask_all & products_df['title'].str.contains(re.escape(t), case=False, na=False)
         else:
-            mask_all = all_products['title'].str.contains(re.escape(q_lower), case=False, na=False)
+            mask_all = products_df['title'].str.contains(re.escape(q_lower), case=False, na=False)
 
-        filtered = all_products[mask_all]
+        filtered = products_df[mask_all]
 
         # Strategy 2: If none, try any token in original title
         if filtered.empty and tokens:
             mask_any = False
             for t in tokens:
-                mask_any = mask_any | all_products['title'].str.contains(re.escape(t), case=False, na=False)
-            filtered = all_products[mask_any]
+                mask_any = mask_any | products_df['title'].str.contains(re.escape(t), case=False, na=False)
+            filtered = products_df[mask_any]
 
         # Strategy 3: If still none, try normalized contains on normalized title
         if filtered.empty and q_norm:
-            mask_norm = all_products['normalized_title'].str.contains(re.escape(q_norm), na=False)
-            filtered = all_products[mask_norm]
+            mask_norm = products_df['normalized_title'].str.contains(re.escape(q_norm), na=False)
+            filtered = products_df[mask_norm]
 
-        amazon_results = filtered[filtered['platform'] == 'Amazon'].to_dict(orient='records')
-        flipkart_results = filtered[filtered['platform'] == 'Flipkart'].to_dict(orient='records')
+        amazon_results = filtered[filtered['platform'].str.lower() == 'amazon'].to_dict(orient='records')
+        flipkart_results = filtered[filtered['platform'].str.lower() == 'flipkart'].to_dict(orient='records')
 
-    return render_template('results.html', 
-                         amazon_products=amazon_results, 
-                         flipkart_products=flipkart_results, 
-                         query=query)
+    return render_template('results.html',
+                           amazon_products=amazon_results,
+                           flipkart_products=flipkart_results,
+                           query=query)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -132,13 +175,15 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        if User.query.filter((User.username == username) | (User.email == email)).first():
+        if get_user_by_username(username) or get_user_by_email(email):
             flash('Username or email already exists!')
             return redirect(url_for('register'))
         hashed_pw = generate_password_hash(password)
-        new_user = User(username=username, email=email, password_hash=hashed_pw)
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            create_user(username=username, email=email, password_hash=hashed_pw)
+        except Exception as exc:
+            flash(f'Unable to create account: {exc}', 'error')
+            return redirect(url_for('register'))
 
         # Send confirmation email
         msg = Message('Registration Confirmation', recipients=[email])
@@ -162,10 +207,10 @@ def login():
             flash('Username/email and password are required.', 'error')
             return render_template('loginvercel.html')
         
-        user = User.query.filter((User.username == username_or_email) | (User.email == username_or_email)).first()
-        if user and check_password_hash(user.password_hash, password):
-            session['user_id'] = user.id
-            session['username'] = user.username
+        user = get_user_by_identifier(username_or_email)
+        if user and check_password_hash(user['password_hash'], password):
+            session['user_id'] = user.get('id')
+            session['username'] = user.get('username')
             flash('Login successful!', 'success')
             return redirect(url_for('products'))
         else:
@@ -194,15 +239,13 @@ def signup():
             flash('Passwords do not match.', 'error')
             return render_template('signup.html')
 
-        if User.query.filter((User.username == username) | (User.email == email)).first():
+        if get_user_by_username(username) or get_user_by_email(email):
             flash('Username or email already exists!', 'error')
             return render_template('signup.html')
 
         try:
             hashed_pw = generate_password_hash(password)
-            new_user = User(username=username, email=email, password_hash=hashed_pw)
-            db.session.add(new_user)
-            db.session.commit()
+            create_user(username=username, email=email, password_hash=hashed_pw)
             flash('Registration successful! Please log in.', 'success')
             return redirect(url_for('loginvercel'))
         except Exception as e:
@@ -212,4 +255,5 @@ def signup():
     return render_template('signup.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5050))
+    app.run(debug=True, host='0.0.0.0', port=port)
